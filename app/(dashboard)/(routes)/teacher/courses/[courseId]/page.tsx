@@ -5,7 +5,8 @@ import { LayoutDashboard } from "lucide-react";
 import { redirect } from "next/navigation";
 import { TitleForm } from "./_components/titile-form";
 import { DescriptionForm } from "./_components/description-form";
-import { ImageForm } from "./_components/image-form";
+import ImageUploader from "@/components/ImageUploader";
+import { CategoryForm } from "./_components/category-form";
 
 const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   const { userId } = await auth();
@@ -19,6 +20,16 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
       id: params.courseId,
     },
   });
+
+ const categories = await db.category.findMany({
+  orderBy:{
+    name:"asc",
+  },
+ });
+
+ console.log(categories);
+ 
+
 
   if (!course) {
     return redirect("/");
@@ -54,9 +65,20 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
             <h2 className="text-xl">Customize your course</h2>
           </div>
           <TitleForm initialData={course} courseId={course.id} />
-          <DescriptionForm
-           initialData={course}
-            courseId={course.id} />
+          <DescriptionForm initialData={course} courseId={course.id} />
+
+          <div className="mt-10 border border-slate-200 p-4 rounded-lg bg-slate-100">
+            <h2 className="text-sm font-semibold mb-6">Add an Image</h2>
+            <ImageUploader initialData={course} courseId={course.id} />
+          </div>
+          <CategoryForm 
+          initialData={course}
+           courseId={course.id}
+           options={categories.map((category) => ({
+             label:category.name,
+             value:category.id
+           }))}
+            />
         </div>
       </div>
     </div>
@@ -64,3 +86,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
 };
 
 export default CourseIdPage;
+
+
+
+
